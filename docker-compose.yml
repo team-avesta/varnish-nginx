@@ -1,0 +1,25 @@
+version: '2'
+services:
+  nginx:
+    image: nginx
+    container_name: nginx
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - /home/user/nginx:/usr/share/nginx/html:ro
+
+  varnish:
+    image: million12/varnish
+    container_name: varnish
+    ports:
+      - "80:80"
+    environment:
+      CACHE_SIZE: 1g
+      VARNISHD_PARAMS: '-p default_ttl=86400 -p default_grace=86400'
+    depends_on:
+      - nginx
+    links:
+      - "nginx:backend-host"
+    volumes_from:
+      - nginx
+    volumes:
+      - ./varnish/default.vcl:/etc/varnish/default.vcl
